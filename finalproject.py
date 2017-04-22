@@ -230,6 +230,66 @@ connect.commit()
 
 #######################################c
 
+sql_1='SELECT Movies.top_actor,Users.location FROM Movies INNER JOIN Users on Movies.imdb_id =Users.imdb_id'
+cur.execute(sql_1)
+actor_and_location=cur.fetchall()
+
+# print (actor_and_location)
+# print('\n')
+# key = name value= dict of location to occurances 
+dictionary_of_actors={}
+# dictionary_of_locations={}
+
+for actor,location in actor_and_location: 
+	if location==None:
+		continue 
+	#check to see if actor dictionary exists in dictionary
+	if actor not in dictionary_of_actors:
+		dictionary_of_locations={}
+		dictionary_of_actors[actor]= dictionary_of_locations
+	
+	#check to see if location is seen before in dictionary
+	if location not in dictionary_of_actors[actor]:
+		dictionary_of_locations[location]=1
+	
+	if location in dictionary_of_locations:
+		dictionary_of_locations[location] +=1
+
+# print(key)
+# 	print(dictionary_of_actors[key])
+# 	print('\n')
+
+most_common_dict={}
+for key in dictionary_of_actors:
+	each_actor=dictionary_of_actors[key]
+	current_max = 0
+	name_out = ''
+	for x_location in each_actor:
+		if each_actor[x_location]>current_max:
+			current_max = each_actor[x_location]
+			name_out = x_location
+
+	most_common_dict[key]=name_out
+	# print(key)
+	# print(dictionary_of_actors[key])
+	# print('\n')		
+
+# print(most_common_dict)
+				
+sql_2='SELECT Movies.top_actor,Tweets.Tweet_text FROM Movies INNER JOIN Tweets on Movies.imdb_id=Tweets.imdb_id where langauge==english'
+cur.execute(sql_2)
+actor_and_tweet=cur.fetchall()
+
+
+
+
+
+
+
+
+sql_3='SELECT Movies.top_actor,Users.user_screen_name FROM Movies INNER JOIN Users on Movies.imdb_id=Users.imdb_id WHERE followers_count>1000'
+cur.execute(sql_3)
+actor_and_followers_count=cur.fetchall()
 ################## TEST CASES#################
 #write test cases for this project... make sure to fufill the requiremnts in the directions for the amount of test you need for each functiona and class
 class tests(unittest.TestCase):
