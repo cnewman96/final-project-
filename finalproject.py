@@ -280,7 +280,20 @@ sql_2='SELECT Movies.top_actor,Tweets.Tweet_text FROM Movies INNER JOIN Tweets o
 cur.execute(sql_2)
 actor_and_tweet=cur.fetchall()
 
-
+d=collections.defaultdict(list)
+for k,v in actor_and_tweet:
+	d[k].append(v)
+merged_dict=dict(d)
+print (merged_dict)
+count=collections.Counter()
+new_dict={}
+# for items in merged_dict:
+# 	for x in merged_dict[items]:
+# 		sx.split()
+# 		count.update(x)
+# 		most_common_word=count.most_common(5)
+# 	new_dict[items]=most_common_word
+# print(new_dict)
 
 
 
