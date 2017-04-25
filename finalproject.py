@@ -6,6 +6,7 @@ import twitter_info
 import sqlite3
 import requests
 import json 
+import pickle
 #Part one: import the nessesary modules, set up tweepy authorization, make sure to have twitter_info in same place as this file!
 consumer_key = twitter_info.consumer_key
 consumer_secret = twitter_info.consumer_secret
@@ -228,17 +229,15 @@ connect.commit()
 # what would be intresting? # brain strom ideas to make sql queries to draw correlations in the given data.  Make sure to export those queries to csv 
 # to create a file output.  remember to use the proper amount of data processing mechanisms in order to fufull the project req. 
 
-#######################################c
+#######################################
 
 sql_1='SELECT Movies.top_actor,Users.location FROM Movies INNER JOIN Users on Movies.imdb_id =Users.imdb_id'
 cur.execute(sql_1)
 actor_and_location=cur.fetchall()
 
-# print (actor_and_location)
-# print('\n')
-# key = name value= dict of location to occurances 
+
 dictionary_of_actors={}
-# dictionary_of_locations={}
+
 
 for actor,location in actor_and_location: 
 	if location==None:
@@ -255,9 +254,6 @@ for actor,location in actor_and_location:
 	if location in dictionary_of_locations:
 		dictionary_of_locations[location] +=1
 
-# print(key)
-# 	print(dictionary_of_actors[key])
-# 	print('\n')
 
 most_common_dict={}
 for key in dictionary_of_actors:
@@ -283,15 +279,12 @@ for k,v in actor_and_tweet:
 	d[k].append(v)
 merged_dict=dict(d)
 
-# print (merged_dict["Adam Sandler"])
-# print (merged_dict)
-# print("\n")
 
 
 list_of_common_english_words=["rt","the", "of", "and", "a", "to", "in", "is", "you", "that", "it", "he", "was", "for", "on", "are", "as", "with", "his", "they", "I", "at", "be", "this", "have", "from", "or", "one", "had", "by", "word"]
-# print(len(list_of_common_english_words))
+
 new_dict={}
-most_common_=[]
+# print(len(merged_dict["Kurt Russell"]))
 for keys in merged_dict:
 	count=collections.Counter()
 	for tweets in merged_dict[keys]: 
@@ -300,29 +293,22 @@ for keys in merged_dict:
 		count_dict=dict(count)
 		list_of_tuples=list(count_dict.items())
 	
-
-		# count.most_common()
-	# print (mc_counts)
-	# print("%------------%")
-	# count.sort(key=lambda tup: tup[1], reverse=True)
-	# print("Big list: ", count, '\n')
-	
 	counter=''
 	new_list=[]
 	for tups in list_of_tuples:
 		words=tups[0].lower()
 		if tups in new_list:
-			# print("continued by duplicate tup")
+		
 			continue
 		if words=="RT":
-			# print("continued by word == word_tracker")
+		
 			continue
 		if words in list_of_common_english_words:
 			continue
 
 		if words!=counter:
-				# print("TUPS: ", tups)
-				if tups[1]>5:
+				
+				if tups[1]>1:
 					new_list.append(tups)
 					counter=words
 	 # print (new_list)
@@ -330,7 +316,6 @@ for keys in merged_dict:
 	# print("List 1: ", new_list, '\n')
 	new_dict[keys]=new_list
 	# print (new_dict)
-
 
 
 sql_3='SELECT Movies.top_actor,Users.user_screen_name FROM Movies INNER JOIN Users on Movies.imdb_id=Users.imdb_id '
@@ -343,51 +328,125 @@ for k,v in actor_and_screenname:
 actors_and_screename=dict(a_s)
 # print (actors_and_screename)
 
-for keys in actors_and_screename:
-	print(" For Actor: ", keys, " These tweet samples come from these users screennames:") 
-	for items in actors_and_screename[keys]:
-		print (items)
+#######################OUTFILE CREATION#################################
 
-	
+outfile=open("TweetMovieActorSummary.txt","w")
+outfile.write("Top Movie Actor and Twitter Data! By Cam Newman")
+outfile.write("\n\n")
+outfile.write("This file provides social media information about the top actors in the movies: Miracle, Good Will Hunting and Happy Gilmore. The data below provides a list of twitter users that my data was gathered from. Below shows the most frequent location (time zone) that people tweet about each actor from(depends on sample). Additionally, this page presents recurring words/items/links/mentions/emojis (more than once) throughout the tweets excluding the top 30 most common words in the english language or 'RT'. It is important to mention the values can change (if delete cache and re-run).") 
+outfile.write("\n\n")
+for keys in actors_and_screename:
+	outfile.write(" For Actor: " '{}' " These tweet samples come from these users screen names:".format(keys))
+	outfile.write("\n\n")
+	for items in actors_and_screename[keys]:
+		outfile.write(items)
+		outfile.write("\n\n")
+outfile.write("\n\n")
+outfile.write("Location")
+outfile.write("\n\n")
 for keys in most_common_dict:
-	print("Actor:", keys, "The Most common location of tweets about this actor are in the", most_common_dict[keys])
-	print ("\n")
+	a=most_common_dict[keys]
+	outfile.write("Actor: " '{}' " the most common location of tweets about this actor are in(the) '{}' ".format(keys,a))
+	outfile.write("\n\n")
+outfile.write("\n\n")
+outfile.write("Word Frequency")
+outfile.write("\n\n")
 for keys in new_dict:
-	print("Actor: ", keys, " Most common words in tweets are,")
-	for commonWord in new_dict[keys]:
-		print("  *",commonWord[0], "was used ", commonWord[1], " times")
-	print('\n')	
+	outfile.write("Actor: '{}' The most common words in the tweets are:".format(keys))
+	outfile.write('\n\n')
+	for d,k in new_dict[keys]:
+		outfile.write("* '{}' , was used, '{}' times".format(d,k))
+		outfile.write('\n\n')	
 
 
 				
 ################## TEST CASES#################
 #write test cases for this project... make sure to fufill the requiremnts in the directions for the amount of test you need for each functiona and class
 class tests(unittest.TestCase):
-	def test_01(self):
-		self.assertEqual(type(twitter_data("matt damon")), type(omdb_data("good will hunting"))) #checkng to see if data we are compiling is of the same type
-	def test_02(self):
+
+	def test_01(self): #testing function twitter_data
+		self.assertEqual(type(twitter_data("matt damon")), type(omdb_data("good will hunting")))  #checkng to see if data we are compiling is of the same type
+	def test_02(self): #testing function omdb data 
+		self.assertEqual(type(omdb_data("Miracle")),dict)
+	def test_03(self): #testing function user_data
+		for x in twitter_data_["statuses"]:
+			for y in x["entities"]["user_mentions"]:
+				self.assertEqual(type(user_data(y["screen_name"])),dict)
+	def test_04(self): #testing instance of tweet class 
 		for x in twitter_data_["statuses"]:
 			c=Tweet(x) #checking type of instance varaible 
 			self.assertEqual(type(c.text), str)
-	def test_03(self):
+	def test_05(self): #testing for tweets_tup method in tweet class 
+		for x in twitter_data_["statuses"]:
+			c=Tweet(x)
+			self.assertEqual(len(c.tweets_tup()),7)
+	def test_06(self): #testing method tweeted_user_info
+		for x in twitter_data_["statuses"]:
+			c=Tweet(x)
+			self.assertEqual(type(c.tweeted_user_info()),tuple)
+	def test_07(self): #testing method method_users_list sometime you get none, thats ok! we can take those out later!
+		for x in twitter_data_["statuses"]:
+			c=Tweet(x)
+			if c.mentions_users_list()==None:
+				continue
+			else:
+				self.assertEqual(type(c.mentions_users_list()),tuple)
+	def test_08(self): #testing var list_of_movie_instances 
 		self.assertEqual(len(list_of_movie_instances),3) #making sure length of instances is equal to 3 
-	def test_04(self):
+	def test_09(self): #testing list of movie_tups
 		for x in list_of_movie_tups: 
 			self.assertEqual(type(x),tuple) #checking if each item in the list of combind data isa tuple, important for importing data into db.
-	def test_05(self):
+	def test_10(self): #testing_of_users
 		for x in list_of_users:
 			self.assertEqual(type(x),tuple) 
-	def test_06(self):
+	def test_11(self): #testing movie class 
 		for x in Movie_data:
 			c=Movie(x)
 			d=c.top_actor
 			self.assertEqual(type(d),str)
-	def test_07(self):
+	def test_12(self):
 		self.assertEqual(len(Movie_data),3) #data retreived is in cache and equals it 
-	def test_08(self): 
+	def test_13(self): #testing tup movie method 
 		for x in Movie_data:
 			C=Movie(x)
-			self.assertEqual(type(C.long_or_short()), str) # see if famous methods returns a string type
-
+			self.assertEqual(type(C.long_or_short()), str)
+			# see if famous methods returns a string type
+	def test_14(self): #testing tup moive mothod 
+		for x in Movie_data:
+			c=Movie(x)
+			self.assertEqual(type(c.tup()),tuple)
+	def test_15(self): #testing if the length of new_dict which is the product of finding the most common words (occured more than 5 times) is 3 
+		self.assertEqual(len(new_dict),3)
+	def test_16(self): #testing if location value is a string for location data manipulation
+		self.assertEqual(type(most_common_dict["Adam Sandler"]),str)
+	def test_17(self):
+		conn = sqlite3.connect('movie_tweet.db') #testing users table
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Users');
+		result = cur.fetchall()
+		self.assertTrue(len(result[0])==6)
+		conn.close()
+	def test_18(self):
+		conn = sqlite3.connect('movie_tweet.db') #testing movies table 
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Movies');
+		result = cur.fetchall()
+		self.assertTrue(len(result[0])==13)
+		conn.close()
+	def test_19(self):
+		conn = sqlite3.connect('movie_tweet.db') #testing tweets table 
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Tweets');
+		result = cur.fetchall()
+		self.assertTrue(len(result[0])==7)
+		conn.close() 
+	def test_20(self): #testing strucutre actors and screename result of data manip
+		self.assertEqual(len(actors_and_screename),3)
+	def test_21(self): #testing output of sql statemnts 
+		self.assertEqual(type(actor_and_location),list)
+	def test_22(self):#test output of sql statemnts 
+		self.assertEqual(type(actor_and_tweet),list)
+	def test_23(self):#testing output of sql statemnts 
+		self.assertEqual(type(actor_and_screenname),list)
 unittest.main(verbosity=2)
 
