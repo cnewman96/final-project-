@@ -270,39 +270,96 @@ for key in dictionary_of_actors:
 			name_out = x_location
 
 	most_common_dict[key]=name_out
-	# print(key)
-	# print(dictionary_of_actors[key])
-	# print('\n')		
 
-# print(most_common_dict)
+	
 				
-sql_2='SELECT Movies.top_actor,Tweets.Tweet_text FROM Movies INNER JOIN Tweets on Movies.imdb_id=Tweets.imdb_id where langauge==english'
+sql_2='SELECT Movies.top_actor,Tweets.Tweet_text FROM Movies INNER JOIN Tweets on Movies.imdb_id=Tweets.imdb_id where language="en"'
 cur.execute(sql_2)
 actor_and_tweet=cur.fetchall()
+# print (actor_and_tweet)
 
 d=collections.defaultdict(list)
 for k,v in actor_and_tweet:
 	d[k].append(v)
 merged_dict=dict(d)
-print (merged_dict)
-count=collections.Counter()
+
+# print (merged_dict["Adam Sandler"])
+# print (merged_dict)
+# print("\n")
+
+
+list_of_common_english_words=["rt","the", "of", "and", "a", "to", "in", "is", "you", "that", "it", "he", "was", "for", "on", "are", "as", "with", "his", "they", "I", "at", "be", "this", "have", "from", "or", "one", "had", "by", "word"]
+# print(len(list_of_common_english_words))
 new_dict={}
-# for items in merged_dict:
-# 	for x in merged_dict[items]:
-# 		sx.split()
-# 		count.update(x)
-# 		most_common_word=count.most_common(5)
-# 	new_dict[items]=most_common_word
-# print(new_dict)
+most_common_=[]
+for keys in merged_dict:
+	count=collections.Counter()
+	for tweets in merged_dict[keys]: 
+		# split_words=tweets.split()
+		count.update(word.lower() for word in tweets.split())
+		count_dict=dict(count)
+		list_of_tuples=list(count_dict.items())
+	
+
+		# count.most_common()
+	# print (mc_counts)
+	# print("%------------%")
+	# count.sort(key=lambda tup: tup[1], reverse=True)
+	# print("Big list: ", count, '\n')
+	
+	counter=''
+	new_list=[]
+	for tups in list_of_tuples:
+		words=tups[0].lower()
+		if tups in new_list:
+			# print("continued by duplicate tup")
+			continue
+		if words=="RT":
+			# print("continued by word == word_tracker")
+			continue
+		if words in list_of_common_english_words:
+			continue
+
+		if words!=counter:
+				# print("TUPS: ", tups)
+				if tups[1]>5:
+					new_list.append(tups)
+					counter=words
+	 # print (new_list)
+	new_list.sort(key=lambda tup: tup[1], reverse=True)		
+	# print("List 1: ", new_list, '\n')
+	new_dict[keys]=new_list
+	# print (new_dict)
 
 
 
-
-
-
-sql_3='SELECT Movies.top_actor,Users.user_screen_name FROM Movies INNER JOIN Users on Movies.imdb_id=Users.imdb_id WHERE followers_count>1000'
+sql_3='SELECT Movies.top_actor,Users.user_screen_name FROM Movies INNER JOIN Users on Movies.imdb_id=Users.imdb_id '
 cur.execute(sql_3)
-actor_and_followers_count=cur.fetchall()
+actor_and_screenname=cur.fetchall()
+
+a_s= collections.defaultdict(list)
+for k,v in actor_and_screenname:
+	a_s[k].append(v)
+actors_and_screename=dict(a_s)
+# print (actors_and_screename)
+
+for keys in actors_and_screename:
+	print(" For Actor: ", keys, " These tweet samples come from these users screennames:") 
+	for items in actors_and_screename[keys]:
+		print (items)
+
+	
+for keys in most_common_dict:
+	print("Actor:", keys, "The Most common location of tweets about this actor are in the", most_common_dict[keys])
+	print ("\n")
+for keys in new_dict:
+	print("Actor: ", keys, " Most common words in tweets are,")
+	for commonWord in new_dict[keys]:
+		print("  *",commonWord[0], "was used ", commonWord[1], " times")
+	print('\n')	
+
+
+				
 ################## TEST CASES#################
 #write test cases for this project... make sure to fufill the requiremnts in the directions for the amount of test you need for each functiona and class
 class tests(unittest.TestCase):
