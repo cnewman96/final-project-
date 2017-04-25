@@ -229,7 +229,7 @@ connect.commit()
 # what would be intresting? # brain strom ideas to make sql queries to draw correlations in the given data.  Make sure to export those queries to csv 
 # to create a file output.  remember to use the proper amount of data processing mechanisms in order to fufull the project req. 
 
-#######################################
+#######################################sql 1 and data manip #######
 
 sql_1='SELECT Movies.top_actor,Users.location FROM Movies INNER JOIN Users on Movies.imdb_id =Users.imdb_id'
 cur.execute(sql_1)
@@ -267,7 +267,7 @@ for key in dictionary_of_actors:
 
 	most_common_dict[key]=name_out
 
-	
+#sql 2 and data manip##########	
 				
 sql_2='SELECT Movies.top_actor,Tweets.Tweet_text FROM Movies INNER JOIN Tweets on Movies.imdb_id=Tweets.imdb_id where language="en"'
 cur.execute(sql_2)
@@ -279,7 +279,7 @@ for k,v in actor_and_tweet:
 	d[k].append(v)
 merged_dict=dict(d)
 
-
+##### gather words from tweets########
 
 list_of_common_english_words=["rt","the", "of", "and", "a", "to", "in", "is", "you", "that", "it", "he", "was", "for", "on", "are", "as", "with", "his", "they", "I", "at", "be", "this", "have", "from", "or", "one", "had", "by", "word"]
 
